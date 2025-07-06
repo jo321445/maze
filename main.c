@@ -13,14 +13,17 @@
 // 7일차 구상도,스코어 바 뼈대 만듬 (6월 7일)
 // 8일차 스코어보드, 각종 버그 제거 (6월 8일)
 // 9일차 스코어보드 현재 점수 표기, 지뢰, 코인 반정도 만듬 (7월 5일)
+// 10일차 스코어보드 코인 표기,코인 BFS빼고 다함
 
 int x, y;
 int arr[Max][Max] = { 0, };
 int lastnum = 0;
 int crrunt_move_count;
 int Mapindex;
-int maxpoint[NumMaps] = { 0, };
+int maxpoint[NumMaps] = { -1, -1, -1, -1, -1 };
 int cnt = 0;
+int coin_num = 0;
+int mapsCoinNum[NumMaps] = {0, 0, 0, 1, 0};
 //맵 입력 출력 함수
 static void SelectMap(int Mapindex) {
 
@@ -31,6 +34,7 @@ static void SelectMap(int Mapindex) {
 		{11, 9},
 		{13, 11}
 	};
+	
 	int maps[NumMaps][Max][Max] = {
 		{
 			{100, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0},
@@ -138,36 +142,33 @@ int place_value(int n) {
 char* scoreboard(int c) {
 	static char str[100];
 	if (c > y + 1) {
-		if (c == 11) {
-			printf("                                 ||     └────────────────────────────┘");
+		for (int i = 0; i < 7+2*(x + 2); i++) {
+			printf(" ");
 		}
-		if (c == 12) {
-			printf("                                 || ");
-		}
-		return 0;
+		printf("||"); 
 	}
-	else if (c == 0 || c > 11) {
+	else if (c <= y+1){
 		printf("       ||");
-		//strcpy(str, "       ||");
 	}
-	else if (c == 1 || c == 4 || c == 8) {
-		printf("       ||     ┌────────────────────────────┐");
+
+	if (c == 1 || c == 4 || c == 8) {
+		printf("     ┌────────────────────────────┐");
 		/*strcpy(str, "       ||     ┌────────────────────────────┐");*/
 	}
-	else if (c == 3 || c == 7 || c == 11) {
-		printf("       ||     └────────────────────────────┘");
+	else if (c == 3 || c == 7 || c == 12) {
+		printf("     └────────────────────────────┘");
 		/*strcpy(str, "       ||     └────────────────────────────┘");*/
 	}
 	else if (c == 2) {
-		printf("       ||     │         Scoreboard         │");
+		printf("     │         Scoreboard         │");
 		/*strcpy(str, "       ||     │ Scoreboard : %d점          │");*/
 	}
 	else if (c == 5) {
 		if (maxpoint[Mapindex] == -1) {
-			printf("       ||     │  최고점수: ?점           │");
+			printf("     │  최고점수: ??점            │");
 		}
 		else {
-			printf("       ||     │  최고점수: %d점", maxpoint[Mapindex]);
+			printf("     │  최고점수: %d점", maxpoint[Mapindex]);
 			for (int i = 0; i < 14 - place_value(maxpoint[Mapindex]); i++) {
 				printf(" ");
 			}
@@ -177,10 +178,10 @@ char* scoreboard(int c) {
 
 	else if (c == 6) {
 		if (lastnum != 1) {
-			printf("       ||     │  현재점수: ?점             │");
+			printf("     │  현재점수: ??점            │");
 		}
 		else {
-			printf("       ||     │  현재점수: %d점", point(cnt));
+			printf("     │  현재점수: %d점", point(cnt));
 			for (int i = 0; i < 14 - place_value(point(cnt)); i++) {
 				printf(" ");
 			}
@@ -189,7 +190,7 @@ char* scoreboard(int c) {
 	}
 
 	else if (c == 9) {
-		printf("       ||     │  Count : %d", cnt);
+		printf("     │  Count : %d", cnt);
 		for (int i = 0; i < 18 - place_value(cnt); i++) {
 			printf(" ");
 		}
@@ -197,10 +198,13 @@ char* scoreboard(int c) {
 		/*strcpy(str, "       ||     │ Count : 0                  │")*/;
 	}
 	else if (c == 10) {
-		printf("       ||     │  Current Count : %d        │", crrunt_move_count);
+		printf("     │  Current Count : %d        │", crrunt_move_count);
 		/*strcpy(str, "       ||     │ Current Count : 20         │");*/
 	}
-
+	else if (c == 11) {
+		printf("     │  coin : %d                  │", coin_num);
+		/*strcpy(str, "       ||     │ Current Count : 20         │");*/
+	}
 
 	return 0;
 }
@@ -409,17 +413,36 @@ int checkBFS() {
 
 int point(int cnt) {
 	int p;
-	if (100 - 5 * (cnt - crrunt_move_count) >= 30) {
-		p = 100 - 5 * (cnt - crrunt_move_count);
+	if (mapsCoinNum[Mapindex] != 0) {
+		if (70 - 5 * (cnt - crrunt_move_count) >= 0) {
+			p = 70 - 5 * (cnt - crrunt_move_count);
+			p += 30 * coin_num / mapsCoinNum[Mapindex];
+		}
+		else {
+			p = 30 * coin_num / mapsCoinNum[Mapindex];
+		}
+
 	}
 	else {
-		p = 30 - 6 * (cnt - 14 - crrunt_move_count);
+		if (100 - 5 * (cnt - crrunt_move_count) >= 30) {
+			p = 100 - 5 * (cnt - crrunt_move_count);
+		}
+		else {
+			p = 30 - 6 * (cnt - 14 - crrunt_move_count);
+		}
+		if (p < 0) {
+			p = 0;
+		}
 	}
-	if (p < 0) {
-		p = 0;
-	}
+
+	
 	return p;
 
+}
+
+int coin() {
+	coin_num++;
+	return 0;
 }
 
 
@@ -492,6 +515,7 @@ void main() {
 					cnt = 0;
 					breakcnt = 1;
 					lastnum = 0;
+					coin_num = 0;
 					break;
 				}
 				else {
@@ -520,11 +544,18 @@ void main() {
 						cnt++;
 					}
 				}
-				else if (movable_check(x_p, y_p, 4) == 2) {//지뢰
+				else if (movable_check(x_p, y_p, 4) == 2) { //지뢰
 					arr[y_p][x_p] = 1;
 					arr[y_p][x_p - 1] = 100;
 					lastnum = 2;
 
+				}
+				else if (movable_check(x_p, y_p, 4) == 3) { //코인
+					arr[y_p][x_p] = 1;
+					arr[y_p][x_p - 1] = 100;
+					coin();
+					x_p -= 1;
+					cnt++;
 				}
 				continue;
 			}
@@ -550,6 +581,13 @@ void main() {
 					lastnum = 2;
 
 				}
+				else if (movable_check(x_p, y_p, 2) == 3) { //코인
+					arr[y_p][x_p] = 1;
+					arr[y_p + 1][x_p] = 100;
+					coin();
+					y_p += 1;
+					cnt++;
+				}
 				continue;
 			}
 
@@ -574,6 +612,13 @@ void main() {
 					lastnum = 2;
 
 				}
+				else if (movable_check(x_p, y_p, 3) == 3) { //코인
+					arr[y_p][x_p] = 1;
+					arr[y_p][x_p + 1] = 100;
+					coin();
+					x_p += 1;
+					cnt++;
+				}
 				continue;
 			}
 
@@ -597,6 +642,13 @@ void main() {
 					arr[y_p - 1][x_p] = 100;
 					lastnum = 2;
 
+				}
+				else if (movable_check(x_p, y_p, 4) == 2) { //코인
+					arr[y_p][x_p] = 1;
+					arr[y_p - 1][x_p] = 100;
+					coin();
+					y_p -= 1;
+					cnt++;
 				}
 				continue;
 			}
