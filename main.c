@@ -3,7 +3,7 @@
 #include<Windows.h>
 #include<string.h>
 #define Max 20
-#define NumMaps 5  // Number of maps you have
+#define NumMaps 6  // Number of maps you have
 
 // 2일차 카운트 ,출력 이미지 변경,미로 탈출 지점
 // 3일차 last함수,movable_check 함수, SelectMap함수
@@ -14,16 +14,17 @@
 // 8일차 스코어보드, 각종 버그 제거 (6월 8일)
 // 9일차 스코어보드 현재 점수 표기, 지뢰, 코인 반정도 만듬 (7월 5일)
 // 10일차 스코어보드 코인 표기,코인 BFS빼고 다함
+// 11일차 6번 맵 만듬, 뭘 해야할지 모르겠음.. 
 
 int x, y;
 int arr[Max][Max] = { 0, };
 int lastnum = 0;
 int crrunt_move_count;
 int Mapindex;
-int maxpoint[NumMaps] = { -1, -1, -1, -1, -1 };
+int maxpoint[NumMaps] = { -1, -1, -1, -1, -1, -1 };
 int cnt = 0;
 int coin_num = 0;
-int mapsCoinNum[NumMaps] = {0, 0, 0, 1, 0};
+int mapsCoinNum[NumMaps] = { 0, 0, 0, 1, 0, 0 };
 //맵 입력 출력 함수
 static void SelectMap(int Mapindex) {
 
@@ -32,9 +33,10 @@ static void SelectMap(int Mapindex) {
 		{11, 9},
 		{11, 9},
 		{11, 9},
-		{13, 11}
+		{13, 11},
+		{20, 20}
 	};
-	
+
 	int maps[NumMaps][Max][Max] = {
 		{
 			{100, 1, 1, 1, 0, 1, 1, 1, 0, 1, 0},
@@ -89,10 +91,34 @@ static void SelectMap(int Mapindex) {
 			{1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 0},
 			{1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 100, 1, 1},
 			{1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1},
-			{1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1},
-			{0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0},
-			{0, 3, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0},
+			{1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 6, 1, 1},
+			{0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1, 6, 1},
+			{0, 3, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1},
 		},
+		{
+			{100, 1, 1, 1, 1, 1, 1, 1, 1, 1, 6, 1, 1, 1, 1, 0, 1, 1, 1, 0},
+			{1, 1, 0, 0, 0, 0, 0, 0, 6, 1, 1, 1, 0, 6, 1, 0, 1, 6, 1, 0},
+			{0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 1, 1},
+			{1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1},
+			{1, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 6, 0, 1, 0, 0, 0, 1, 0, 1},
+			{1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1},
+			{0, 1, 0, 1, 0, 0, 0, 6, 6, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 0},
+			{0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 6, 1, 0, 1, 1, 1},
+			{0, 1, 0, 6, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1},
+			{0, 1, 0, 1, 0, 6, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1},
+			{0, 1, 1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 6, 1},
+			{0, 0, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1},
+			{0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 6, 1, 1},
+			{0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0},
+			{0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1},
+			{0, 1, 1, 1, 1, 6, 1, 1, 1, 1, 0, 1, 0, 6, 0, 1, 0, 1, 1, 1},
+			{0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 1},
+			{0, 1, 1, 1, 1, 0, 1, 1, 6, 1, 1, 0, 6, 1, 1, 1, 6, 3, 0, 1},
+			{0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 1, 0, 1},
+			{0, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0}
+
+		},
+
 	};
 
 	x = mapsScale[Mapindex][0], y = mapsScale[Mapindex][1];
@@ -131,8 +157,8 @@ int place_value(int n) {
 //■■  ■  ■  ■        ■       ║  ┌───────────────┐
 //■        ■        ■○■       ║  │ 이동거리 : 0                 │ 
 //■■■■■■■■■■■■■       ║  │ 최단 이동거리 : 20           │
-//                                 ║  └───────────────┘                                   
-//                                 ║                                
+//                                 ║  │ 최단 이동거리 : 20           │                                
+//                                 ║  └───────────────┘                               
 //                                 ║  
 //                                 ║  
 //                                                                          
@@ -142,12 +168,12 @@ int place_value(int n) {
 char* scoreboard(int c) {
 	static char str[100];
 	if (c > y + 1) {
-		for (int i = 0; i < 7+2*(x + 2); i++) {
+		for (int i = 0; i < 7 + 2 * (x + 2); i++) {
 			printf(" ");
 		}
-		printf("||"); 
+		printf("||");
 	}
-	else if (c <= y+1){
+	else if (c <= y + 1) {
 		printf("       ||");
 	}
 
@@ -265,34 +291,6 @@ void PrintMap(int cnt) {
 	scoreboard(y + 3);
 	printf("\n");
 
-	//이쪽부터
-	//for (int i = 0; i < x+1 ; i++) {
-	//	printf("  ");
-	//}
-	//printf("||");
-	//scoreboard(y + 2);
-
-	//printf("\ncount: %d", cnt);
-	//for (int i = 0; i < 2*x - 5 - (place_value(cnt)); i++) {
-	//	printf(" ");
-	//}
-	//printf("||");
-	//scoreboard(y + 2);
-	//printf("\n");
-
-	//for (int i = 0; i < x + 1; i++) {
-	//	printf("  ");
-	//}
-	//printf("||");
-	//scoreboard(y + 4);
-
-	//printf("\ncrrunt count: %d", crrunt_move_count);
-	//for (int i = 0; i < 2 * x - 12 - (place_value(crrunt_move_count)); i++) {
-	//	printf(" ");
-	//}
-	//printf("||");
-	//scoreboard(y + 3);
-	//여기까지는 나중에 고칠 거임 버그는 아닌데 나중엔 필요 없음 일단 주석 처리함
 	if (num == 1) {
 		p = point(cnt);
 		if (maxpoint[Mapindex] < p) {
@@ -305,10 +303,6 @@ void PrintMap(int cnt) {
 
 	//}
 }
-
-
-
-
 
 
 
@@ -415,8 +409,8 @@ int point(int cnt) {
 	int p;
 	if (mapsCoinNum[Mapindex] != 0) {
 		if (70 - 5 * (cnt - crrunt_move_count) >= 0) {
-			p = 70 - 5 * (cnt - crrunt_move_count);
-			p += 30 * coin_num / mapsCoinNum[Mapindex];
+			p = 60 - 2 * (cnt - crrunt_move_count);
+			p += 40 * coin_num / mapsCoinNum[Mapindex];
 		}
 		else {
 			p = 30 * coin_num / mapsCoinNum[Mapindex];
@@ -424,18 +418,18 @@ int point(int cnt) {
 
 	}
 	else {
-		if (100 - 5 * (cnt - crrunt_move_count) >= 30) {
+		if (100 - 5 * (cnt - crrunt_move_count) >= 80) {
 			p = 100 - 5 * (cnt - crrunt_move_count);
 		}
 		else {
-			p = 30 - 6 * (cnt - 14 - crrunt_move_count);
+			p = 80 - 2 * (cnt - 4 - crrunt_move_count);
 		}
 		if (p < 0) {
 			p = 0;
 		}
 	}
 
-	
+
 	return p;
 
 }
@@ -465,7 +459,7 @@ int mine() { // 지뢰 밟고 나서 함수
 
 void main() {
 	while (1) {
-		printf("맵 번호를 입력해주세요 (1~5)\n");
+		printf("맵 번호를 입력해주세요 (1~6)\n");
 		scanf("%d", &Mapindex);
 		Mapindex--;
 		if (Mapindex >= 0 && Mapindex < NumMaps) {
